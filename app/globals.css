@@ -1,0 +1,85 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html, body {
+    @apply bg-veri-ink text-veri-text;
+    font-feature-settings: "cv11", "ss01";
+  }
+
+  body {
+    min-height: 100vh;
+  }
+
+  ::selection {
+    @apply bg-veri-blue/40 text-white;
+  }
+
+  /* Subtle radial gradient backdrop, matching the Veri deck */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(1200px 800px at 80% -10%, rgba(30,136,229,0.10), transparent 60%),
+      radial-gradient(1000px 600px at -10% 100%, rgba(30,136,229,0.06), transparent 55%);
+    z-index: -1;
+  }
+}
+
+@layer components {
+  .veri-card {
+    @apply rounded-2xl bg-veri-surface border border-veri-line shadow-card;
+  }
+
+  .veri-input {
+    @apply w-full rounded-xl bg-veri-ink/60 border border-veri-line px-4 py-3
+           text-veri-text placeholder:text-veri-mute
+           focus:outline-none focus:border-veri-blue focus:shadow-soft-blue
+           transition-colors;
+  }
+
+  .veri-label {
+    @apply block text-sm font-medium text-veri-subtle mb-1.5;
+  }
+
+  .veri-hint {
+    @apply text-xs text-veri-mute mt-1;
+  }
+
+  .veri-btn {
+    @apply inline-flex items-center justify-center gap-2
+           rounded-xl px-5 py-3 font-medium
+           transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .veri-btn-primary {
+    @apply veri-btn bg-veri-blue text-white hover:bg-veri-glow;
+  }
+
+  .veri-btn-ghost {
+    @apply veri-btn bg-transparent border border-veri-line text-veri-text hover:border-veri-blue/60;
+  }
+
+  .veri-link {
+    @apply text-veri-blue hover:text-veri-glow underline-offset-4 hover:underline;
+  }
+
+  .veri-h1 {
+    @apply text-3xl md:text-4xl font-semibold tracking-tight text-veri-text;
+  }
+
+  .veri-h2 {
+    @apply text-xl md:text-2xl font-semibold tracking-tight text-veri-text;
+  }
+
+  .veri-eyebrow {
+    @apply text-xs uppercase tracking-[0.18em] text-veri-blue font-medium;
+  }
+}
