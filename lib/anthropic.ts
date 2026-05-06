@@ -17,9 +17,10 @@ export function getAnthropic(): Anthropic {
 }
 
 // Default models — can be overridden per call.
+// Names match Anthropic's current model identifiers as of 2026.
 export const MODELS = {
   // Heavy reasoning — use for assessment scoring (Phase 3) and CV screening
-  screening: "claude-sonnet-4-5-20250929",
+  screening: "claude-sonnet-4-6",
   // Fast & cheap — use for short tasks
   quick: "claude-haiku-4-5-20251001",
 } as const;

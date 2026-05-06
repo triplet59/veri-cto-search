@@ -15,7 +15,9 @@ import {
   type ScreeningResult,
 } from "@/lib/prompts/cv-screening";
 
-export const maxDuration = 60; // give Claude enough time to read the CV
+// Vercel function timeout. Hobby plan caps at 60s; Pro extends to 300s.
+// PDF reading + Claude tool-use call typically completes in 15-40s; 60s gives headroom.
+export const maxDuration = 60;
 
 export async function POST(
   request: Request,
@@ -140,16 +142,29 @@ export async function POST(
     }
     result = toolUse.input as ScreeningResult;
   } catch (err) {
-    console.error("Screening failed:", err);
-    await supabase
-      .from("candidates")
-      .update({ status: "applied" })
-      .eq("id", candidateId);
+    const errMsg = err instanceof Error ? err.message : String(err);
+    const errStack = err instanceof Error ? err.stack : undefined;
+    console.error("Screening failed:", errMsg, errStack);
+
+    // Best-effort status revert and audit log so the candidate isn't stuck at "screening"
+    try {
+      await supabase
+        .from("candidates")
+        .update({ status: "applied" })
+        .eq("id", candidateId);
+      await supabase.from("audit_log").insert({
+        actor_label: "system",
+        action: "ai_screening_failed",
+        target_type: "candidate",
+        target_id: candidateId,
+        details: { error: errMsg, model: MODELS.screening },
+      });
+    } catch (cleanupErr) {
+      console.error("Cleanup after screening failure also failed:", cleanupErr);
+    }
+
     return NextResponse.json(
-      {
-        error: "screening failed",
-        details: err instanceof Error ? err.message : String(err),
-      },
+      { error: "screening failed", details: errMsg },
       { status: 500 },
     );
   }
