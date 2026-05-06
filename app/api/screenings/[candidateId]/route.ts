@@ -112,7 +112,7 @@ export async function POST(
       },
       {
         type: "text",
-        text: "Please screen the attached CV for the CTO role described in the system prompt and call the record_screening tool with your structured assessment.",
+        text: "Please screen the attached CV for the Senior Technical Officer role described in the system prompt and call the record_screening tool with your structured assessment.",
       },
     ];
 

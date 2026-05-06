@@ -31,7 +31,7 @@ export default async function ApplyPage({ params }: PageProps) {
       <div className="max-w-2xl mx-auto">
         <header className="mb-10">
           <VeriLogo className="h-10 mb-8" />
-          <p className="veri-eyebrow mb-3">Chief Technology Officer Search</p>
+          <p className="veri-eyebrow mb-3">Senior Technical Officer Search</p>
           <h1 className="veri-h1 mb-4">Application form</h1>
           <p className="text-veri-subtle leading-relaxed">
             Thank you for accepting our invitation to apply. The information you provide here

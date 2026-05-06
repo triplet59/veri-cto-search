@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Veri — Chief Technology Officer Search",
+  title: "Veri — Senior Technical Officer Search",
   description: "By invitation only. Veri / Gravitas Finance LLC.",
   robots: {
     index: false,

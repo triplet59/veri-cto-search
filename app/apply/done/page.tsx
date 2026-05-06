@@ -5,7 +5,7 @@ export default function DonePage() {
     <main className="min-h-screen flex items-center justify-center px-6">
       <div className="max-w-lg text-center">
         <VeriLogo className="h-10 mx-auto mb-10" />
-        <p className="veri-eyebrow mb-3">Chief Technology Officer Search</p>
+        <p className="veri-eyebrow mb-3">Senior Technical Officer Search</p>
         <h1 className="veri-h1 mb-4">Application received</h1>
         <p className="text-veri-subtle leading-relaxed mb-6">
           Thank you for completing the first step. We'll review your CV and come back to you

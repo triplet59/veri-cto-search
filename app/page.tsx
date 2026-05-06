@@ -8,7 +8,7 @@ export default function Home() {
         <div className="flex justify-center mb-10">
           <VeriLogo className="h-12" />
         </div>
-        <p className="veri-eyebrow mb-4">Chief Technology Officer Search</p>
+        <p className="veri-eyebrow mb-4">Senior Technical Officer Search</p>
         <h1 className="veri-h1 mb-4">By invitation only</h1>
         <p className="text-veri-subtle leading-relaxed">
           This recruitment process is conducted by personal invitation. If you have received

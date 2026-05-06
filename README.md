@@ -1,6 +1,6 @@
-# Veri CTO Search
+# Veri Senior Technical Officer Search
 
-Hiring platform for Veri / Gravitas Finance LLC's Chief Technology Officer search.
+Hiring platform for Veri / Gravitas Finance LLC's Senior Technical Officer search.
 
 Invite-only candidate intake → human-reviewed AI CV screening → in-platform technical assessment → AI scoring → admin pipeline dashboard.
 

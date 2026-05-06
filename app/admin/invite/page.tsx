@@ -22,7 +22,7 @@ export default async function InvitePage() {
   await requireAdmin();
   return (
     <div className="max-w-2xl">
-      <p className="veri-eyebrow mb-2">CTO Search</p>
+      <p className="veri-eyebrow mb-2">Senior Technical Officer Search</p>
       <h1 className="veri-h1 mb-2">Invite a candidate</h1>
       <p className="text-veri-subtle mb-8">
         Generates a unique application link you can send to a candidate. The candidate's

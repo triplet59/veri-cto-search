@@ -81,7 +81,7 @@ export default async function AdminDashboard() {
     <div className="space-y-8">
       <div className="flex items-end justify-between">
         <div>
-          <p className="veri-eyebrow mb-2">CTO Search</p>
+          <p className="veri-eyebrow mb-2">Senior Technical Officer Search</p>
           <h1 className="veri-h1">Pipeline</h1>
           <p className="text-veri-subtle mt-2">
             {list.length} candidate{list.length === 1 ? "" : "s"} across the funnel.
