@@ -1,15 +1,30 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
-import { createAdminClient } from "@/lib/supabase/server";
+import { createAdminClient, createServerClient } from "@/lib/supabase/server";
 import { formatDateTime, formatDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
+
+async function requireAdmin() {
+  const ssr = await createServerClient();
+  const { data: { user } } = await ssr.auth.getUser();
+  if (!user) redirect("/admin/login");
+  const adminEmails = (process.env.ADMIN_EMAILS || "")
+    .split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+  if (adminEmails.length > 0 && !adminEmails.includes(user.email?.toLowerCase() || "")) {
+    await ssr.auth.signOut();
+    redirect("/admin/login");
+  }
+}
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
 export default async function CandidateDetailPage({ params }: PageProps) {
+  await requireAdmin();
   const { id } = await params;
   const supabase = createAdminClient();
 

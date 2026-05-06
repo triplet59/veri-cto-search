@@ -1,9 +1,25 @@
 import Link from "next/link";
-import { createAdminClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
+import { createAdminClient, createServerClient } from "@/lib/supabase/server";
 import { formatDateTime } from "@/lib/utils";
 import type { CandidateStatus } from "@/lib/supabase/types";
 
 export const dynamic = "force-dynamic";
+
+async function requireAdmin() {
+  const ssr = await createServerClient();
+  const { data: { user } } = await ssr.auth.getUser();
+  if (!user) redirect("/admin/login");
+  const adminEmails = (process.env.ADMIN_EMAILS || "")
+    .split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+  if (adminEmails.length > 0 && !adminEmails.includes(user.email?.toLowerCase() || "")) {
+    await ssr.auth.signOut();
+    redirect("/admin/login");
+  }
+  return user;
+}
 
 const STATUS_LABEL: Record<CandidateStatus, string> = {
   invited: "Invited",
@@ -40,6 +56,7 @@ const STATUS_TONE: Record<CandidateStatus, string> = {
 };
 
 export default async function AdminDashboard() {
+  await requireAdmin();
   const supabase = createAdminClient();
   const { data: candidates, error } = await supabase
     .from("candidates")
