@@ -78,8 +78,8 @@ export function ApplicationForm({ candidateId }: Props) {
           <Field
             label="Current employer"
             name="currentEmployer"
-            required
             error={state.fieldErrors?.currentEmployer}
+            hint="Optional — leave blank if you'd rather not say at this stage."
           />
         </div>
       </Section>
