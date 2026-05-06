@@ -18,9 +18,14 @@ export function getAnthropic(): Anthropic {
 
 // Default models — can be overridden per call.
 // Names match Anthropic's current model identifiers as of 2026.
+//
+// We use Haiku for CV screening because:
+//   - 5-15s typical response time (well within Vercel's 60s function limit)
+//   - Sonnet was timing out on Vercel Hobby plan
+//   - The screening rubric is well-structured (tool use), so Haiku's reasoning is sufficient
+// Sonnet remains available for assessment scoring (Phase 3) where the input is much larger.
 export const MODELS = {
-  // Heavy reasoning — use for assessment scoring (Phase 3) and CV screening
-  screening: "claude-sonnet-4-6",
-  // Fast & cheap — use for short tasks
+  screening: "claude-haiku-4-5-20251001",
+  scoring: "claude-sonnet-4-6",
   quick: "claude-haiku-4-5-20251001",
 } as const;

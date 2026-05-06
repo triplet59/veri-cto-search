@@ -30,6 +30,7 @@ export async function POST(
   }
 
   const { candidateId } = await params;
+  console.log(`[screening] starting for candidate ${candidateId}`);
   const supabase = createAdminClient();
 
   // Look up the candidate and their most recent CV upload.
@@ -129,7 +130,16 @@ export async function POST(
       ],
     };
 
-    const response = await anthropic.messages.create(requestBody);
+    // Hard timeout on the SDK call so a hung request triggers our catch block
+    // instead of letting Vercel kill the function with no cleanup.
+    console.log(`[screening] calling Claude with model ${MODELS.screening}`);
+    const startedAt = Date.now();
+    const response = await anthropic.messages.create(requestBody, {
+      timeout: 50_000, // 50 seconds — leaves 10s for cleanup before Vercel's 60s cap
+    });
+    console.log(
+      `[screening] Claude responded in ${Date.now() - startedAt}ms, ${response.usage.input_tokens}+${response.usage.output_tokens} tokens`,
+    );
 
     inputTokens = response.usage.input_tokens;
     outputTokens = response.usage.output_tokens;
