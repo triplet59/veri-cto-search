@@ -8,9 +8,15 @@
 //                          authenticated the request (e.g. server actions on
 //                          the apply form). Never expose this client.
 
-import { createServerClient as createSSRClient } from "@supabase/ssr";
+import { createServerClient as createSSRClient, type CookieOptions } from "@supabase/ssr";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
+
+interface CookieToSet {
+  name: string;
+  value: string;
+  options?: CookieOptions;
+}
 
 export async function createServerClient() {
   const cookieStore = await cookies();
@@ -22,7 +28,7 @@ export async function createServerClient() {
         getAll() {
           return cookieStore.getAll();
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet: CookieToSet[]) {
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
               cookieStore.set(name, value, options),
