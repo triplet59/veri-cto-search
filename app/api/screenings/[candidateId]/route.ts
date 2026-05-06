@@ -7,6 +7,7 @@
 // redirected to /apply/done.
 
 import { NextResponse } from "next/server";
+import type Anthropic from "@anthropic-ai/sdk";
 import { createAdminClient } from "@/lib/supabase/server";
 import { getAnthropic, MODELS } from "@/lib/anthropic";
 import {
@@ -95,29 +96,36 @@ export async function POST(
   let outputTokens = 0;
   try {
     const anthropic = getAnthropic();
+    // Note: the `document` content block type is fully supported at runtime
+    // by the Anthropic API for PDF inputs, but the SDK's TypeScript types
+    // (in @anthropic-ai/sdk 0.32.x) don't yet include it in the content
+    // block union. Cast as the broader type to bypass the type check.
+    // Bump the SDK in a future maintenance pass to remove this cast.
+    const messageContent: unknown = [
+      {
+        type: "document",
+        source: {
+          type: "base64",
+          media_type: "application/pdf",
+          data: base64Pdf,
+        },
+      },
+      {
+        type: "text",
+        text: "Please screen the attached CV for the CTO role described in the system prompt and call the record_screening tool with your structured assessment.",
+      },
+    ];
+
     const response = await anthropic.messages.create({
       model: MODELS.screening,
       max_tokens: 4000,
       system: SCREENING_SYSTEM_PROMPT,
-      tools: [SCREENING_TOOL],
+      tools: [SCREENING_TOOL] as unknown as Anthropic.Messages.Tool[],
       tool_choice: { type: "tool", name: SCREENING_TOOL.name },
       messages: [
         {
           role: "user",
-          content: [
-            {
-              type: "document",
-              source: {
-                type: "base64",
-                media_type: "application/pdf",
-                data: base64Pdf,
-              },
-            },
-            {
-              type: "text",
-              text: "Please screen the attached CV for the CTO role described in the system prompt and call the record_screening tool with your structured assessment.",
-            },
-          ],
+          content: messageContent as Anthropic.Messages.ContentBlockParam[],
         },
       ],
     });
