@@ -2,6 +2,11 @@ import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { createAdminClient, createServerClient } from "@/lib/supabase/server";
 import { formatDateTime, formatDate } from "@/lib/utils";
+import {
+  ScreeningDisplay,
+  ScreeningPending,
+  ScreeningNotStarted,
+} from "@/components/admin/screening-display";
 
 export const dynamic = "force-dynamic";
 
@@ -28,9 +33,10 @@ export default async function CandidateDetailPage({ params }: PageProps) {
   const { id } = await params;
   const supabase = createAdminClient();
 
-  const [{ data: candidate }, { data: cv }] = await Promise.all([
+  const [{ data: candidate }, { data: cv }, { data: screening }] = await Promise.all([
     supabase.from("candidates").select("*").eq("id", id).maybeSingle(),
     supabase.from("cv_uploads").select("*").eq("candidate_id", id).order("uploaded_at", { ascending: false }).limit(1).maybeSingle(),
+    supabase.from("screenings").select("*").eq("candidate_id", id).order("screened_at", { ascending: false }).limit(1).maybeSingle(),
   ]);
 
   if (!candidate) notFound();
@@ -103,6 +109,18 @@ export default async function CandidateDetailPage({ params }: PageProps) {
           <p className="text-veri-mute text-sm">No CV uploaded yet.</p>
         )}
       </Block>
+
+      {/* AI Screening */}
+      <div>
+        <h2 className="veri-h2 mb-4">AI screening</h2>
+        {screening ? (
+          <ScreeningDisplay screening={screening} />
+        ) : candidate.status === "screening" ? (
+          <ScreeningPending />
+        ) : (
+          <ScreeningNotStarted />
+        )}
+      </div>
 
       <Block title="Funnel timeline">
         <KV label="Invited" value={formatDateTime(candidate.invited_at)} />

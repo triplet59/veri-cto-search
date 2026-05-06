@@ -2,7 +2,9 @@
 
 import { z } from "zod";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
+import { siteUrl } from "@/lib/utils";
 
 const ApplicationSchema = z.object({
   candidateId: z.string().uuid(),
@@ -136,6 +138,27 @@ export async function submitApplication(
     target_type: "candidate",
     target_id: data.candidateId,
     details: { storage_path: storagePath, file_name: cvFile.name },
+  });
+
+  // Trigger AI screening in the background AFTER the response is sent.
+  // The candidate gets redirected immediately; the screening completes
+  // ~30-60 seconds later and appears on the admin dashboard when ready.
+  after(async () => {
+    try {
+      const internalToken = process.env.INTERNAL_API_TOKEN;
+      if (!internalToken) {
+        console.warn("INTERNAL_API_TOKEN not set — skipping screening trigger");
+        return;
+      }
+      await fetch(siteUrl(`/api/screenings/${data.candidateId}`), {
+        method: "POST",
+        headers: { "x-internal-token": internalToken },
+      });
+    } catch (err) {
+      // Non-fatal — admin can manually trigger screening from the dashboard
+      // if the background trigger fails.
+      console.error("Background screening trigger failed:", err);
+    }
   });
 
   redirect("/apply/done");

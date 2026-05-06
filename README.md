@@ -56,5 +56,5 @@ Set the env vars from `.env.example` in Vercel project settings. Push to GitHub;
 ## Phase status
 
 - ✅ **Phase 1** — Candidate intake site (form, CV upload, admin dashboard)
-- 🚧 **Phase 2** — AI CV screening (in progress)
+- ✅ **Phase 2** — AI CV screening (Claude reads each CV after submission, writes a structured screening report scored against 10 fit signals + 12 red flags + a recommendation)
 - ⏳ **Phase 3** — In-platform assessment + AI scoring
