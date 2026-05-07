@@ -7,6 +7,8 @@ import {
   ScreeningPending,
   ScreeningNotStarted,
 } from "@/components/admin/screening-display";
+import { ScoreDisplay, ScoringPending } from "@/components/admin/score-display";
+import { SendAssessmentButton } from "@/components/admin/send-assessment-button";
 
 export const dynamic = "force-dynamic";
 
@@ -33,10 +35,18 @@ export default async function CandidateDetailPage({ params }: PageProps) {
   const { id } = await params;
   const supabase = createAdminClient();
 
-  const [{ data: candidate }, { data: cv }, { data: screening }] = await Promise.all([
+  const [
+    { data: candidate },
+    { data: cv },
+    { data: screening },
+    { data: submission },
+    { data: score },
+  ] = await Promise.all([
     supabase.from("candidates").select("*").eq("id", id).maybeSingle(),
     supabase.from("cv_uploads").select("*").eq("candidate_id", id).order("uploaded_at", { ascending: false }).limit(1).maybeSingle(),
     supabase.from("screenings").select("*").eq("candidate_id", id).order("screened_at", { ascending: false }).limit(1).maybeSingle(),
+    supabase.from("assessment_submissions").select("*").eq("candidate_id", id).maybeSingle(),
+    supabase.from("assessment_scores").select("*").eq("candidate_id", id).order("scored_at", { ascending: false }).limit(1).maybeSingle(),
   ]);
 
   if (!candidate) notFound();
@@ -121,6 +131,64 @@ export default async function CandidateDetailPage({ params }: PageProps) {
           <ScreeningNotStarted />
         )}
       </div>
+
+      {/* Assessment — send invitation, view submission, view score */}
+      {(candidate.status === "screened" ||
+        candidate.status === "assessment_sent" ||
+        candidate.status === "assessment_started" ||
+        candidate.status === "assessment_submitted" ||
+        candidate.status === "scoring" ||
+        candidate.status === "scored" ||
+        candidate.status === "shortlisted" ||
+        candidate.status === "offer" ||
+        candidate.status === "declined") && (
+        <div>
+          <h2 className="veri-h2 mb-4">Technical assessment</h2>
+
+          {/* Send invitation block — show until the candidate has actually submitted */}
+          {(candidate.status === "screened" ||
+            candidate.status === "assessment_sent" ||
+            candidate.status === "assessment_started") && (
+            <div className="veri-card p-6 mb-6">
+              <SendAssessmentButton
+                candidateId={candidate.id}
+                candidateEmail={candidate.email}
+                alreadySent={!!candidate.assessment_token}
+                assessmentToken={candidate.assessment_token}
+              />
+              {candidate.assessment_sent_at && (
+                <p className="text-veri-mute text-xs mt-3">
+                  Last sent {formatDateTime(candidate.assessment_sent_at)}.
+                  {candidate.assessment_started_at && (
+                    <> Candidate started {formatDateTime(candidate.assessment_started_at)}.</>
+                  )}
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Score */}
+          {score ? (
+            <ScoreDisplay score={score} />
+          ) : candidate.status === "scoring" ? (
+            <ScoringPending />
+          ) : candidate.status === "assessment_submitted" ? (
+            <div className="veri-card p-6 border-veri-blue/30">
+              <p className="text-veri-text">
+                Assessment submitted {formatDateTime(candidate.assessment_submitted_at)}. AI scoring should run shortly — refresh to check.
+              </p>
+            </div>
+          ) : (
+            submission && (
+              <div className="veri-card p-6">
+                <p className="text-veri-mute text-sm">
+                  Candidate has saved a draft (last saved {formatDateTime(submission.last_saved_at)}) but hasn't submitted yet.
+                </p>
+              </div>
+            )
+          )}
+        </div>
+      )}
 
       <Block title="Funnel timeline">
         <KV label="Invited" value={formatDateTime(candidate.invited_at)} />
